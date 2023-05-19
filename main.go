@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Config struct {
@@ -79,11 +80,21 @@ func main() {
 	fmt.Printf("Update [%d] projects\n", len(projects))
 	for i, project := range projects {
 		fmt.Printf("[%02d/%02d] %s\n", i+1, len(projects), project)
+		fmt.Printf("commit> ")
+		message := ""
+		fmt.Scanf("%s", &message)
+		message = strings.TrimSpace(message)
+		if len(message) == 0 {
+			message = project
+		} else {
+			message = message + ": " + project
+		}
+
 		exec.Command("rm", "-r", config.RepoPath+"/"+project).Run()
 		exec.Command("mv", config.DownloadPath+"/"+project, config.RepoPath+"/"+project).Run()
 		os.Chdir(config.RepoPath)
 		exec.Command("git", "add", project).Run()
-		exec.Command("git", "commit", "-m", project).Run()
+		exec.Command("git", "commit", "-m", message).Run()
 	}
 
 	os.Chdir(config.RepoPath)
